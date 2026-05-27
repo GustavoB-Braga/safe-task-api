@@ -34,4 +34,9 @@ public class Task {
     public void toggleCompleted() {
         this.completed = !this.completed;
     }
+
+    public void update(TaskUpdateDto dto) {
+        this.title = dto.title();
+        this.description = dto.description();
+    }
 }

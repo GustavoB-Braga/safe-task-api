@@ -1,14 +1,11 @@
 package br.com.safe.task.domain.task;
 
 import br.com.safe.task.domain.user.User;
-import br.com.safe.task.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TaskService {
@@ -16,38 +13,32 @@ public class TaskService {
     @Autowired
     private TaskRepository repository;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    public TaskResponseDto register(TaskRequestDto dto) {
-
-        User user = userRepository.findById(dto.userId()).orElseThrow(EntityNotFoundException::new);
+    public TaskResponseDto register(TaskRequestDto dto, User user) {
 
         Task task = new Task(dto);
-        var savedTask = repository.save(task);
         task.setUser(user);
+        var savedTask = repository.save(task);
 
-        return new TaskResponseDto(savedTask.getId(), savedTask.getTitle(), savedTask.getDescription(), savedTask.isCompleted());
+        return new TaskResponseDto(savedTask);
     }
 
-    public Page<TaskResponseDto> getTasks(Pageable pageable) {
-
-//        List<TaskResponseDto> listTasks = repository.findAll().stream()
-//                .map(t -> new TaskResponseDto(t.getId(), t.getTitle(), t.getDescription(), t.isCompleted()))
-//                .toList();
-
-        return repository.findAll(pageable).map(TaskResponseDto::new);
+    public Page<TaskResponseDto> getTaskByUser(User user, Pageable pageable) {
+        return repository.findByUser(user, pageable).map(TaskResponseDto::new);
     }
 
-    public List<TaskResponseDto> getByUser(Long id) {
 
-        return repository.findByUserId(id).stream()
-                .map(task -> new TaskResponseDto(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted())).toList();
-    }
-
-    public TaskResponseDto switchStatus(Long id) {
-        var task = repository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public TaskResponseDto switchStatus(Long id, User user) {
+        var task = repository.findByIdAndUser(id, user).orElseThrow(EntityNotFoundException::new);
         task.toggleCompleted();
+
+        return new TaskResponseDto(task);
+    }
+
+    public TaskResponseDto updateTask(Long id, TaskUpdateDto dto, User user) {
+
+        var task = repository.findByIdAndUser(id, user).orElseThrow(EntityNotFoundException::new);
+
+        task.update(dto);
 
         return new TaskResponseDto(task);
     }
