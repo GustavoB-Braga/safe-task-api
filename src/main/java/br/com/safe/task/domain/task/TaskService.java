@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,5 +42,10 @@ public class TaskService {
         task.update(dto);
 
         return new TaskResponseDto(task);
+    }
+
+    public void deleteTask(Long id, User user) {
+        var task = repository.findByIdAndUser(id,user).orElseThrow(EntityNotFoundException::new);
+        repository.delete(task);
     }
 }

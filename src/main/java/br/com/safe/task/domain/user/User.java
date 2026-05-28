@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,6 +29,9 @@ public class User implements UserDetails {
     private String login;
     private String password;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updateAt;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Task> tasks;
 
@@ -36,6 +40,17 @@ public class User implements UserDetails {
         this.name = dto.name();
         this.login = dto.login();
         this.password = encryptedPassword;
+    }
+
+    @PrePersist
+    public void prePersist(){
+        this.createdAt = LocalDateTime.now();
+        this.updateAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate(){
+        this.updateAt = LocalDateTime.now();
     }
 
     @Override
