@@ -4,6 +4,8 @@ import br.com.safe.task.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -19,6 +21,9 @@ public class Task {
     private String description;
     private boolean completed;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updateAt;
+
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -29,6 +34,17 @@ public class Task {
         this.title = dto.title();
         this.description = dto.description();
         this.completed = false;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updateAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updateAt = LocalDateTime.now();
     }
 
     public void toggleCompleted() {

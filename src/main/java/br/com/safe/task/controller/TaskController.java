@@ -33,6 +33,7 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<Page<TaskResponseDto>> getTaskByUser(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
+        System.out.println(authentication);
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(service.getTaskByUser(user, pageable));
     }
